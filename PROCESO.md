@@ -171,6 +171,7 @@ Lectura del `page.tsx`, `globals.css`, layout y componentes 3D del portfolio ant
 ### Fase 9 — Audio ambiental
 
 - Motor generativo en `src/lib/ambient.ts`: cuatro voces de osciladores, filtro pasa-bajos, delay realimentado y compresor.
+- Capa melódica pentatónica por canal con envolventes largas y una quinta ocasional: no es un loop fijo.
 - Presets por canal y transiciones de 1.8 s; fade-in de 2 s en el primer gesto.
 - Control `SONIDO ON / OFF` en la cabecera y barras del sintonizador ligadas al estado de audio.
 - Sin archivos pregrabados: el `AudioContext` se crea recién con el primer clic o tecla.
@@ -196,7 +197,7 @@ Lectura del `page.tsx`, `globals.css`, layout y componentes 3D del portfolio ant
 | 2 | Layout del manifiesto | 981–1440 | Título “PIENSO EN SISTEMAS, NO EN PANTALLAS.” sin partir palabras y con ≥ 40 px respecto de la columna derecha. |
 | 3 | Layout del manifiesto | 390–768 | Columnas apiladas; sin intersección entre título y párrafos. |
 | 4 | Navegación móvil | 390 px | Los cinco destinos entran sin cortarse; números ocultos. |
-| 5 | Título de contacto | 360, 390, 1440 | “¿Hablemos?” entra completo en el contenedor, sin overflow horizontal. |
+| 5 | Título de contacto | 360, 390, 1440 | “Hablemos.” entra completo en el contenedor, sin overflow horizontal. |
 | 6 | Título de sección | 521, 540, 560, 600, 640 | “OBRA SELECCIONADA” y el resto de los títulos no se recortan (`scrollWidth` = `clientWidth`). |
 | 7 | Clic en canal Imagen | Escritorio | “6 de 6 piezas” → “2 de 6 piezas · Imagen” y 2 tarjetas. |
 | 8 | Teclado en el dial | `ArrowRight` | Canal activo CH 01, `aria-checked` actualizado, URL `?canal=1`, 2 tarjetas. |

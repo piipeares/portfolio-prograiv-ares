@@ -31,12 +31,26 @@ interface Engine {
   master: GainNode;
   filter: BiquadFilterNode;
   delay: DelayNode;
+  leadFilter: BiquadFilterNode;
   voices: Voice[];
+  melodyTimer: ReturnType<typeof setInterval> | null;
+  step: number;
   everStarted: boolean;
 }
 
 const FADE_IN = 2;
 const GLIDE = 1.8;
+
+// Escala pentatónica por canal (semitonos desde la raíz, dos octavas arriba).
+const SCALES: Record<ChannelId, number[]> = {
+  0: [0, 3, 5, 7, 10, 12, 15],
+  1: [0, 2, 4, 7, 9, 12, 14],
+  2: [0, 3, 5, 7, 10, 12, 15],
+  3: [0, 2, 4, 7, 9, 12, 14],
+};
+
+// Recorrido melódico: asciende y desciende sin saltos bruscos.
+const PATTERN = [0, 2, 1, 3, 2, 4, 3, 5, 4, 2, 3, 1];
 
 const scope = typeof window !== 'undefined' ? (window as unknown as Record<string, unknown>) : null;
 const getEngine = (): Engine | null => (scope?.__faEngine as Engine | null) ?? null;
@@ -81,6 +95,16 @@ function build(): Engine | null {
   master.connect(comp);
   comp.connect(ctx.destination);
 
+  const leadFilter = ctx.createBiquadFilter();
+  leadFilter.type = 'lowpass';
+  leadFilter.frequency.value = 2400;
+  leadFilter.Q.value = 0.5;
+  leadFilter.connect(master);
+  const leadSend = ctx.createGain();
+  leadSend.gain.value = 0.55;
+  leadFilter.connect(leadSend);
+  leadSend.connect(delay);
+
   // Movimiento lento del filtro: respiración, no efecto.
   const lfo = ctx.createOscillator();
   lfo.frequency.value = 0.07;
@@ -112,14 +136,23 @@ function build(): Engine | null {
     voices.push({ a, b });
   });
 
-  const engine: Engine = { ctx, master, filter, delay, voices, everStarted: true };
+  const engine: Engine = {
+    ctx,
+    master,
+    filter,
+    delay,
+    leadFilter,
+    voices,
+    melodyTimer: null,
+    step: 0,
+    everStarted: true,
+  };
   setEngine(engine);
   applyChannel(engine, channel, 0);
   return engine;
 }
 
-function glide(param: AudioParam, value: number, seconds: number, now: number): void {
-  param.cancelScheduledValues(now);
+function glide(param: AudioParam, value: number, seconds: number, now: number): void {  param.cancelScheduledValues(now);
   param.setValueAtTime(param.value, now);
   if (seconds <= 0) param.setValueAtTime(value, now);
   else param.linearRampToValueAtTime(value, now + seconds);
@@ -144,6 +177,64 @@ function applyChannel(engine: Engine, channel: ChannelId, seconds = GLIDE): void
     rampFrequency(voice.a, base, seconds, now);
     rampFrequency(voice.b, base * 1.004, seconds, now);
   });
+}
+
+function playNote(engine: Engine, semitones: number, when: number, velocity = 1): void {
+  const ctx = engine.ctx;
+  const channel = $channel.get();
+  const frequency = PRESETS[channel].root * 4 * Math.pow(2, semitones / 12);
+
+  const osc = ctx.createOscillator();
+  osc.type = 'triangle';
+  osc.frequency.value = frequency;
+
+  const harmonic = ctx.createOscillator();
+  harmonic.type = 'sine';
+  harmonic.frequency.value = frequency * 2.002;
+  const harmonicGain = ctx.createGain();
+  harmonicGain.gain.value = 0.32;
+  harmonic.connect(harmonicGain);
+
+  const envelope = ctx.createGain();
+  const peak = 0.05 * velocity;
+  envelope.gain.setValueAtTime(0.0001, when);
+  envelope.gain.exponentialRampToValueAtTime(peak, when + 0.06);
+  envelope.gain.exponentialRampToValueAtTime(0.0001, when + 2.9);
+
+  osc.connect(envelope);
+  harmonicGain.connect(envelope);
+  envelope.connect(engine.leadFilter);
+
+  osc.start(when);
+  harmonic.start(when);
+  osc.stop(when + 3.1);
+  harmonic.stop(when + 3.1);
+}
+
+function tickMelody(engine: Engine): void {
+  if ($audio.get() !== 'on') return;
+  const scale = SCALES[$channel.get()];
+  const position = PATTERN[engine.step % PATTERN.length];
+  engine.step += 1;
+
+  const when = engine.ctx.currentTime + 0.08;
+  playNote(engine, scale[position], when);
+  // Cada cinco pasos agrega una quinta suave: acorde sin bloques fijos.
+  if (engine.step % 5 === 0) {
+    playNote(engine, scale[(position + 2) % scale.length], when + 0.22, 0.55);
+  }
+}
+
+function startMelody(engine: Engine): void {
+  if (engine.melodyTimer) return;
+  engine.melodyTimer = setInterval(() => tickMelody(engine), 3400);
+  setTimeout(() => tickMelody(engine), 1500);
+}
+
+function stopMelody(engine: Engine): void {
+  if (!engine.melodyTimer) return;
+  clearInterval(engine.melodyTimer);
+  engine.melodyTimer = null;
 }
 
 export async function startAmbient(fade = FADE_IN): Promise<void> {
@@ -177,12 +268,14 @@ export async function startAmbient(fade = FADE_IN): Promise<void> {
   gain.setValueAtTime(Math.max(gain.value, 0.0001), now);
   gain.linearRampToValueAtTime(0.5, now + fade);
   $audio.set('on');
+  startMelody(engine);
 }
 
 export function stopAmbient(): void {
   const engine = getEngine();
   $audio.set('off');
   if (!engine) return;
+  stopMelody(engine);
 
   const now = engine.ctx.currentTime;
   const gain = engine.master.gain;

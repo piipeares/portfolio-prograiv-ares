@@ -211,6 +211,7 @@ Implementa los cuatro estados pedidos (`loading`, `success`, `error`, `empty`), 
 - Cuatro voces de osciladores (triángulo + seno desafinado) filtradas por un `BiquadFilterNode` pasa-bajos, con delay realimentado y compresor de salida.
 - Cada canal define raíz, acorde, corte de filtro y delay: A2 abierto (CH 00), Cmaj7 (CH 01), Gm7 (CH 02) y F abierto (CH 03).
 - Al cambiar de canal, frecuencia, filtro y delay se interpolan con `linearRampToValueAtTime` / `exponentialRampToValueAtTime` en **1.8 s**. El audio nunca se corta.
+- Capa melódica generativa: una secuencia pentatónica por canal (con quinta ocasional) con envolventes de 2.9 s y delay; cambia de escala al cambiar de canal y no repite un loop fijo.
 - Primer clic en el sintonizador: fade-in de **2 s** desde silencio. El botón `SONIDO ON / OFF` silencia y reanuda; `aria-pressed` y la etiqueta accesible reflejan el estado.
 - Las barras del sintonizador solo se animan con audio activo (`data-audio`).
 - No hay `.mp3`: todo se sintetiza en el navegador. El `AudioContext` se crea con el primer gesto, por la política de autoplay.
@@ -396,7 +397,7 @@ La navegación móvil conserva los cinco destinos en una fila desplazable, sin s
 | Overflow horizontal | 1280 × 900 | 1280 = 1280. |
 | Overflow horizontal | 1440 × 900 | 1440 = 1440. Hero a dos columnas. |
 | Título de manifiesto | 981–1440 | “PANTALLAS.” no se parte ni invade la columna derecha (≥ 40 px de aire). |
-| Título de contacto | 360, 390, 1440 | “¿Hablemos?” entra completo, sin recorte ni scroll lateral. |
+| Título de contacto | 360, 390, 1440 | “Hablemos.” entra completo, sin recorte ni scroll lateral. |
 | Sintonizador por teclado | `ArrowRight` sobre el canal activo | Cambia a `CH 01`, actualiza `?canal=1` y el estado de la cabecera. |
 | Deep link | `/?canal=2` | Abre en Interfaz, muestra 2 de 6 piezas. |
 | Filtro por canal | Clic en Imagen | “6 de 6” → “2 de 6 piezas · Imagen”. |
