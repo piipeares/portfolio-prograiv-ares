@@ -1,11 +1,11 @@
-# PROCESO — Portfolio 2026, Felipe Ares
+# PROCESO - Portfolio 2026, Felipe Ares
 
-Documento de trabajo del proyecto final de **Programación Multimedial IV**. Registra el problema, las alternativas que se evaluaron, cómo evolucionó la pieza, qué se probó, qué dificultades aparecieron y qué queda pendiente.
+Documento de trabajo del proyecto final de **Programación Multimedial IV** donde se registra el problema, las alternativas que se evaluaron, cómo evolucionó la pieza, qué se probó, qué dificultades aparecieron y qué queda pendiente.
 
 - **Autor:** Felipe Ares
-- **Pieza:** Portfolio 2026 — sitio interactivo
+- **Pieza:** Portfolio 2026 - sitio interactivo
 - **Stack:** Astro 6, React 19, Three.js / React Three Fiber, nanostores
-- **Fecha de cierre de esta versión:** noviembre de 2026
+- **Fecha de cierre de esta versión:** 12 de noviembre de 2026
 - **Documentación de uso:** [README.md](README.md)
 
 ![Portada en escritorio](docs/desktop-hero.jpg)
@@ -226,7 +226,6 @@ Lectura del `page.tsx`, `globals.css`, layout y componentes 3D del portfolio ant
 
 ### Lo que estas pruebas no cubren
 
-- Dispositivos físicos (iOS Safari, Android de gama baja).
 - Lectores de pantalla reales (NVDA, VoiceOver).
 - Pruebas con usuarios.
 - Lighthouse / Core Web Vitals.
@@ -278,15 +277,13 @@ La instalación mostró un aviso de `undici@8.12.4` pidiendo Node `>=22.19.0`; e
 
 ---
 
-## 7. Criterios para una defensa oral
+## 7. Criterios para una defensa
 
-Si hay que explicar el proyecto en cinco minutos:
-
-1. **Por qué Astro.** El contenido es estático; solo cinco islas necesitan JavaScript. La escena 3D es la isla más pesada y se carga aparte.
-2. **Por qué canales.** Un solo estado (`$channel`) demuestra coordinación real entre escena, obra y cabecera. No es un filtro aislado.
-3. **Por qué Open-Meteo.** Dato público, sin clave, con una traducción visual clara. La API se trata como una fuente que puede fallar: hay timeout, caché, error y vacío.
-4. **Cómo se sostiene la accesibilidad.** `radiogroup` con teclado, `<dialog>` nativo, `aria-live`, skip link, foco visible, movimiento reducido y fallback sin WebGL.
-5. **Qué se sacrificó.** Peso del chunk 3D, dependencia de un CDN de fuentes y de una API sin SLA. Están declarados, no escondidos.
+1. **Por qué Astro?** El contenido es estático; solo cinco islas necesitan JavaScript. La escena 3D es la isla más pesada y se carga aparte.
+2. **Por qué canales?** Un solo estado (`$channel`) demuestra coordinación real entre escena, obra y cabecera. No es un filtro aislado.
+3. **Por qué Open-Meteo?** Dato público, sin clave, con una traducción visual clara. La API se trata como una fuente que puede fallar: hay timeout, caché, error y vacío.
+4. **Cómo se sostiene la accesibilidad?** `radiogroup` con teclado, `<dialog>` nativo, `aria-live`, skip link, foco visible, movimiento reducido y fallback sin WebGL.
+5. **Qué se sacrificó?** Peso del chunk 3D, dependencia de un CDN de fuentes y de una API sin SLA. Están declarados, no escondidos.
 
 ---
 
@@ -320,6 +317,8 @@ Si hay que explicar el proyecto en cinco minutos:
 
 ## 9. Cierre
 
-Este portfolio no es un CV con una escena 3D al lado. Es un sistema donde **elegir un canal cambia lo que se ve, lo que se lee y cómo se siente la pieza**. La migración a Astro permitió sostener esa idea con HTML estático, islas y un costo de JavaScript acotado al lugar donde hace falta.
+Este portfolio no es un CV con una escena 3D al lado. Es un sistema donde **elegir un canal cambia lo que se ve, lo que se lee y cómo se siente la pieza**. La migración a Astro permitió sostener esa idea con HTML estático, islas y un costo de JavaScript acotado al lugar donde hace falta. Es muy probable que reemplace mi portfolio original por algo muy parecido a lo qué logré acá.
+
+Si llegaste hasta acá: astro.js esta BUENISIMO.
 
 Quedan deudas claras: peso de la escena, dependencia de una API externa y falta de tests versionados. El valor de la entrega está en que esas deudas están medidas, documentadas y son defendibles.
