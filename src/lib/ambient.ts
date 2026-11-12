@@ -71,7 +71,7 @@ interface Engine {
   nextBar: number;
   barNumber: number;
   channel: ChannelId;
-  pending: ChannelId | null;
+  active: Array<{ oscs: OscillatorNode[]; until: number }>;
   everStarted: boolean;
 }
 
@@ -82,6 +82,11 @@ const setEngine = (engine: Engine): void => {
 };
 
 let suspendTimer: ReturnType<typeof setTimeout> | null = null;
+
+/** Registra voces para poder deslizar su altura cuando cambia el canal. */
+function track(engine: Engine, oscs: OscillatorNode[], until: number): void {
+  engine.active.push({ oscs, until });
+}
 
 /** Transpone un voicing completo para no romper su equilibrio. */
 const transpose = (notes: number[], offset: number): number[] => notes.map((note) => note + offset);
@@ -169,7 +174,7 @@ function build(): Engine | null {
     nextBar: ctx.currentTime + 0.2,
     barNumber: 0,
     channel: $channel.get(),
-    pending: null,
+    active: [],
     everStarted: true,
   };
   setEngine(engine);
@@ -204,6 +209,7 @@ function leadNote(engine: Engine, midi: number, when: number, beats: number, vel
   warmthGain.connect(envelope);
   envelope.connect(engine.leadBus);
 
+  track(engine, [body, warmth], when + duration);
   body.start(when);
   warmth.start(when);
   body.stop(when + duration + 0.05);
@@ -235,6 +241,7 @@ function padNote(engine: Engine, midi: number, when: number, duration: number): 
   voiceGain.connect(envelope);
   envelope.connect(engine.padBus);
 
+  track(engine, [a, b], when + duration);
   a.start(when);
   b.start(when);
   a.stop(when + duration + 0.05);
@@ -254,6 +261,7 @@ function bassNote(engine: Engine, midi: number, when: number, duration: number):
 
   osc.connect(envelope);
   envelope.connect(engine.padBus);
+  track(engine, [osc], when + duration);
   osc.start(when);
   osc.stop(when + duration + 0.05);
 }
@@ -266,12 +274,31 @@ function auditionTone(engine: Engine, channel: ChannelId, now = engine.ctx.curre
   engine.wet.gain.setTargetAtTime(tone.reverb, now, GLIDE / 3);
 }
 
-function scheduleBar(engine: Engine, when: number): void {
-  if (engine.pending !== null) {
-    engine.channel = engine.pending;
-    engine.pending = null;
+/** Desliza la altura de todo lo que está sonando hacia la tonalidad nueva. */
+function glidePitch(engine: Engine, channel: ChannelId, seconds = GLIDE): void {
+  const from = TONES[engine.channel];
+  const to = TONES[channel];
+  const delta = to.offset + to.octave - (from.offset + from.octave);
+
+  if (delta !== 0) {
+    const now = engine.ctx.currentTime;
+    const ratio = Math.pow(2, delta / 12);
+    engine.active.forEach((voice) => {
+      if (voice.until <= now) return;
+      voice.oscs.forEach((osc) => {
+        const param = osc.frequency;
+        const current = param.value;
+        param.cancelScheduledValues(now);
+        param.setValueAtTime(current, now);
+        param.exponentialRampToValueAtTime(current * ratio, now + seconds);
+      });
+    });
   }
 
+  engine.channel = channel;
+}
+
+function scheduleBar(engine: Engine, when: number): void {
   const tone = TONES[engine.channel];
   const bar = engine.barNumber % 4;
   const loop = Math.floor(engine.barNumber / 4);
@@ -300,7 +327,9 @@ function scheduleBar(engine: Engine, when: number): void {
 
 function scheduler(engine: Engine): void {
   if (engine.ctx.state !== 'running') return;
-  while (engine.nextBar < engine.ctx.currentTime + LOOKAHEAD) {
+  const now = engine.ctx.currentTime;
+  engine.active = engine.active.filter((voice) => voice.until > now);
+  while (engine.nextBar < now + LOOKAHEAD) {
     scheduleBar(engine, engine.nextBar);
     engine.nextBar += BAR;
   }
@@ -310,7 +339,6 @@ function startScheduler(engine: Engine): void {
   if (engine.timer) return;
   engine.nextBar = engine.ctx.currentTime + 0.25;
   engine.barNumber = 0;
-  engine.pending = null;
   engine.channel = $channel.get();
   engine.timer = setInterval(() => {
     if (engine) scheduler(engine);
@@ -395,8 +423,8 @@ if (typeof window !== 'undefined' && !scope?.__faAmbientHook) {
   $channel.subscribe((channel) => {
     const engine = getEngine();
     if (!engine?.everStarted) return;
-    // Respuesta inmediata en timbre; la tonalidad nueva entra en el próximo compás.
+    // Deslizamiento suave de altura y timbre, sin cortar el sonido.
+    glidePitch(engine, channel as ChannelId);
     auditionTone(engine, channel as ChannelId);
-    engine.pending = channel as ChannelId;
   });
 }

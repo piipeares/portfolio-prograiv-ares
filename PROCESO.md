@@ -172,7 +172,7 @@ Lectura del `page.tsx`, `globals.css`, layout y componentes 3D del portfolio ant
 
 - Motor en `src/lib/ambient.ts`: piano de fieltro sintetizado, pad, bajo, reverb por convolución y compresor.
 - Melodía de 8 notas largas sobre Am7–Fmaj7–Cmaj7–G6 a 80 BPM, con silencios y saltos amplios: suave, sin brillo infantil.
-- Cada canal transpone la frase a otra tonalidad y registro (Do, Fa, Sol, Re) y el timbre responde al instante; la nueva tonalidad entra en el siguiente compás.
+- Cada canal transpone la frase a otra tonalidad y registro (Do, Fa, Sol, Re); al cambiar, las voces activas deslizan su altura en 1.2 s y el timbre se ajusta a la vez.
 - Control `SONIDO ON / OFF` en la cabecera y barras del sintonizador ligadas al estado de audio.
 - Sin archivos pregrabados: el `AudioContext` se crea recién con el primer clic o tecla.
 

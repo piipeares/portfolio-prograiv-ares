@@ -212,7 +212,7 @@ Implementa los cuatro estados pedidos (`loading`, `success`, `error`, `empty`), 
 - Armonía con séptimas: **Am7 – Fmaj7 – Cmaj7 – G6** a **80 BPM**, sin tríadas brillantes ni notas agudas con armónico metálico.
 - **Melodía compuesta de 4 compases** (8 notas largas, con silencios y saltos amplios), pensada para cantarse. La variación entre vueltas es de intensidad, no de notas al azar.
 - Cada canal transpone la frase a otra tonalidad y otro registro: CH 00 en Do (medio), CH 01 en Fa (aireado), CH 02 en Sol y CH 03 en Re (graves y cálidos). El cambio de tono es claramente audible.
-- Al cambiar de canal, el corte de los filtros y la reverb se deslizan con `setTargetAtTime` (≈1.2 s) y la tonalidad nueva entra en el **siguiente compás**: respuesta inmediata en timbre, transición musical, sin cortes.
+- Al cambiar de canal, **todas las voces que están sonando deslizan su altura** con `exponentialRampToValueAtTime` en **1.2 s** y los filtros/reverb se mueven con `setTargetAtTime`: el pitch cambia suave, sin cortes ni saltos.
 - Reverb por **convolución** con respuesta impulsiva generada en memoria, compresor de salida y `master` a 0.36 para no fatigar.
 - Primer clic en el sintonizador: fade-in de **2 s** desde silencio. El botón `SONIDO ON / OFF` silencia y reanuda; `aria-pressed` y la etiqueta accesible reflejan el estado.
 - Las barras del sintonizador solo se animan con audio activo (`data-audio`).

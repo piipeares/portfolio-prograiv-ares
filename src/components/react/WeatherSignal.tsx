@@ -161,7 +161,7 @@ export default function WeatherSignal() {
             <div className="weather__condition">
               <p className="weather__label">{snapshot.label}</p>
               <p className="weather__city">
-                Buenos Aires · {snapshot.isDay ? 'día' : 'noche'} · código {snapshot.code}
+                Buenos Aires · {snapshot.isDay ? 'día' : 'noche'}
               </p>
             </div>
           </div>
