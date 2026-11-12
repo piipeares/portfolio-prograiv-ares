@@ -170,9 +170,9 @@ Lectura del `page.tsx`, `globals.css`, layout y componentes 3D del portfolio ant
 
 ### Fase 9 — Audio ambiental
 
-- Motor generativo en `src/lib/ambient.ts`: cuatro voces de osciladores, filtro pasa-bajos, delay realimentado y compresor.
-- Capa melódica pentatónica por canal con envolventes largas y una quinta ocasional: no es un loop fijo.
-- Presets por canal y transiciones de 1.8 s; fade-in de 2 s en el primer gesto.
+- Motor en `src/lib/ambient.ts`: piano de fieltro sintetizado, pad, bajo, reverb por convolución y compresor.
+- Melodía compuesta de 4 compases sobre C–Am–F–G a 76 BPM, transpuesta por canal (Do, Re, Fa, Sol mayor) y con variaciones cada dos vueltas.
+- El cambio de canal entra en el siguiente compás y el timbre se desliza con `setTargetAtTime`; fade-in de 2 s en el primer gesto.
 - Control `SONIDO ON / OFF` en la cabecera y barras del sintonizador ligadas al estado de audio.
 - Sin archivos pregrabados: el `AudioContext` se crea recién con el primer clic o tecla.
 

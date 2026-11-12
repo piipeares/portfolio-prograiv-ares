@@ -208,10 +208,11 @@ Implementa los cuatro estados pedidos (`loading`, `success`, `error`, `empty`), 
 **Archivos:** `src/lib/ambient.ts` (motor), `src/components/react/SoundControl.tsx` (control).  
 **Hidratación:** `client:idle` en la cabecera.
 
-- Cuatro voces de osciladores (triángulo + seno desafinado) filtradas por un `BiquadFilterNode` pasa-bajos, con delay realimentado y compresor de salida.
-- Cada canal define raíz, acorde, corte de filtro y delay: A2 abierto (CH 00), Cmaj7 (CH 01), Gm7 (CH 02) y F abierto (CH 03).
-- Al cambiar de canal, frecuencia, filtro y delay se interpolan con `linearRampToValueAtTime` / `exponentialRampToValueAtTime` en **1.8 s**. El audio nunca se corta.
-- Capa melódica generativa: una secuencia pentatónica por canal (con quinta ocasional) con envolventes de 2.9 s y delay; cambia de escala al cambiar de canal y no repite un loop fijo.
+- Piano de fieltro sintetizado: triángulo + armónico senoidal, ataque corto y caída larga, en dos buses (melodía y pad) más un seno de bajo.
+- Armonía en Do mayor con progresión **C–Am–F–G** a **76 BPM**. Cada canal transpone la misma frase: CH 00 en Do, CH 01 en Re, CH 02 en Fa y CH 03 en Sol mayor.
+- **Melodía compuesta de 4 compases** (16 notas, negras y corcheas) que se repite con variaciones: en las vueltas impares baja la intensidad y las notas largas suman una octava suave. No es una nota pedal con notas al azar.
+- Reverb por **convolución** con respuesta impulsiva generada en memoria, compresor de salida y `master` a 0.42 para no fatigar.
+- Al cambiar de canal, el corte de los filtros y la reverb se deslizan con `setTargetAtTime` (≈1 s) y la frase nueva entra en el **siguiente compás**: el audio nunca se corta ni salta.
 - Primer clic en el sintonizador: fade-in de **2 s** desde silencio. El botón `SONIDO ON / OFF` silencia y reanuda; `aria-pressed` y la etiqueta accesible reflejan el estado.
 - Las barras del sintonizador solo se animan con audio activo (`data-audio`).
 - No hay `.mp3`: todo se sintetiza en el navegador. El `AudioContext` se crea con el primer gesto, por la política de autoplay.
