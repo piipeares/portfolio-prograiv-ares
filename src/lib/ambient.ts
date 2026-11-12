@@ -1,64 +1,62 @@
 /**
  * Motor de audio ambiental generativo.
- * Sin archivos externos: piano de fieltro sintetizado, pads suaves, bajo y
- * reverb por convolución. Una frase melódica compuesta de 4 compases se repite
- * y varía por canal; los cambios de canal entran en el siguiente compás para
- * que la transición sea musical y nunca corte el sonido.
+ * Sin archivos externos: piano de fieltro sintetizado, pads cálidos, bajo y
+ * reverb por convolución. Una frase melódica compuesta de 4 compases sobre
+ * acordes con séptima se repite y cada canal la transpone a otra tonalidad.
+ * El timbre del canal responde al instante y la nueva tonalidad entra en el
+ * siguiente compás, para que el cambio sea audible pero nunca corte el sonido.
  */
 import type { ChannelId } from '../data/profile';
 import { $audio, $channel } from '../stores/signal';
 
-const BPM = 76;
+const BPM = 80;
 const BEAT = 60 / BPM;
 const BAR = BEAT * 4;
-const LOOKAHEAD = 0.9;
+const LOOKAHEAD = 0.5;
 const FADE_IN = 2;
+const GLIDE = 1.2;
 
 const midiToHz = (midi: number): number => 440 * Math.pow(2, (midi - 69) / 12);
 
-/** Acordes base en Do mayor; cada canal los transpone a su tonalidad. */
+/** Acordes con séptima: cálidos, sin el brillo de una tríada simple. */
 const CHORDS = [
-  { notes: [55, 60, 64, 67], bass: 48 }, // C
-  { notes: [57, 60, 64, 69], bass: 45 }, // Am
-  { notes: [53, 57, 60, 65], bass: 41 }, // F
-  { notes: [55, 59, 62, 67], bass: 43 }, // G
+  { notes: [57, 60, 64, 67], bass: 45 }, // Am7
+  { notes: [53, 57, 60, 64], bass: 41 }, // Fmaj7
+  { notes: [52, 55, 59, 64], bass: 36 }, // Cmaj7
+  { notes: [55, 59, 62, 64], bass: 43 }, // G6
 ];
 
-/** Frase principal, 4 compases en Do mayor (beats absolutos 0–16). */
+/**
+ * Frase de 4 compases (beats absolutos 0–16). Notas largas, contorno amplio y
+ * silencios: melodía cantable, sin el rebote de negras de una canción infantil.
+ */
 const MELODY = [
-  { beat: 0, note: 67, len: 1, vel: 0.8 },
-  { beat: 1, note: 72, len: 1, vel: 0.85 },
-  { beat: 2, note: 76, len: 1.5, vel: 0.9 },
-  { beat: 3.5, note: 74, len: 0.5, vel: 0.65 },
+  { beat: 0, note: 76, len: 2.5, vel: 0.8 },
+  { beat: 2.5, note: 72, len: 1.5, vel: 0.66 },
 
-  { beat: 4, note: 72, len: 1, vel: 0.78 },
-  { beat: 5, note: 69, len: 1, vel: 0.72 },
-  { beat: 6, note: 76, len: 1.5, vel: 0.85 },
-  { beat: 7.5, note: 79, len: 0.5, vel: 0.7 },
+  { beat: 4, note: 69, len: 3, vel: 0.72 },
+  { beat: 7, note: 67, len: 1, vel: 0.56 },
 
-  { beat: 8, note: 77, len: 1, vel: 0.82 },
-  { beat: 9, note: 76, len: 1, vel: 0.75 },
-  { beat: 10, note: 74, len: 1.5, vel: 0.8 },
-  { beat: 11.5, note: 72, len: 0.5, vel: 0.62 },
+  { beat: 8, note: 71, len: 2, vel: 0.68 },
+  { beat: 10, note: 76, len: 2, vel: 0.72 },
 
-  { beat: 12, note: 74, len: 1, vel: 0.78 },
-  { beat: 13, note: 76, len: 0.5, vel: 0.62 },
-  { beat: 13.5, note: 74, len: 0.5, vel: 0.58 },
-  { beat: 14, note: 71, len: 2, vel: 0.72 },
+  { beat: 12, note: 74, len: 2.5, vel: 0.7 },
+  { beat: 14.5, note: 71, len: 1.5, vel: 0.58 },
 ];
 
 interface ChannelTone {
   offset: number;
+  octave: number;
   padCutoff: number;
   leadCutoff: number;
   reverb: number;
 }
 
 const TONES: Record<ChannelId, ChannelTone> = {
-  0: { offset: 0, padCutoff: 1500, leadCutoff: 3200, reverb: 0.32 },
-  1: { offset: 2, padCutoff: 1800, leadCutoff: 3800, reverb: 0.28 },
-  2: { offset: -7, padCutoff: 1350, leadCutoff: 3000, reverb: 0.36 },
-  3: { offset: -5, padCutoff: 1200, leadCutoff: 2800, reverb: 0.34 },
+  0: { offset: 0, octave: 0, padCutoff: 1250, leadCutoff: 2200, reverb: 0.44 },
+  1: { offset: 5, octave: 0, padCutoff: 1650, leadCutoff: 2800, reverb: 0.34 },
+  2: { offset: 7, octave: -12, padCutoff: 1100, leadCutoff: 2400, reverb: 0.48 },
+  3: { offset: 2, octave: -12, padCutoff: 950, leadCutoff: 1800, reverb: 0.38 },
 };
 
 interface Engine {
@@ -85,10 +83,17 @@ const setEngine = (engine: Engine): void => {
 
 let suspendTimer: ReturnType<typeof setTimeout> | null = null;
 
-/** Transpone un acorde completo sin romper su voicing. */
+/** Transpone un voicing completo para no romper su equilibrio. */
 const transpose = (notes: number[], offset: number): number[] => notes.map((note) => note + offset);
 
-function impulse(ctx: AudioContext, seconds = 2.8, decay = 3): AudioBuffer {
+/** Mantiene el bajo en un registro audible aunque el canal baje de octava. */
+const fitBass = (midi: number): number => {
+  let value = midi;
+  while (value < 36) value += 12;
+  return value;
+};
+
+function impulse(ctx: AudioContext, seconds = 3.2, decay = 2.6): AudioBuffer {
   const length = Math.floor(ctx.sampleRate * seconds);
   const buffer = ctx.createBuffer(2, length, ctx.sampleRate);
   for (let channel = 0; channel < 2; channel += 1) {
@@ -112,37 +117,38 @@ function build(): Engine | null {
   master.gain.value = 0;
 
   const comp = ctx.createDynamicsCompressor();
-  comp.threshold.value = -18;
-  comp.knee.value = 24;
-  comp.ratio.value = 2.6;
-  comp.attack.value = 0.03;
-  comp.release.value = 0.35;
+  comp.threshold.value = -20;
+  comp.knee.value = 28;
+  comp.ratio.value = 2;
+  comp.attack.value = 0.05;
+  comp.release.value = 0.4;
 
   const leadFilter = ctx.createBiquadFilter();
   leadFilter.type = 'lowpass';
-  leadFilter.frequency.value = 3300;
+  leadFilter.frequency.value = 2200;
+  leadFilter.Q.value = 0.4;
   const padFilter = ctx.createBiquadFilter();
   padFilter.type = 'lowpass';
-  padFilter.frequency.value = 1500;
+  padFilter.frequency.value = 1250;
+  padFilter.Q.value = 0.4;
 
   const leadBus = ctx.createGain();
-  leadBus.gain.value = 0.9;
+  leadBus.gain.value = 0.85;
   const padBus = ctx.createGain();
-  padBus.gain.value = 0.85;
+  padBus.gain.value = 0.8;
 
   leadBus.connect(leadFilter);
   padBus.connect(padFilter);
 
-  // Reverb corta y cálida, generada en memoria.
   const convolver = ctx.createConvolver();
   convolver.buffer = impulse(ctx);
   const wet = ctx.createGain();
-  wet.gain.value = 0.32;
+  wet.gain.value = 0.4;
   convolver.connect(wet);
   wet.connect(master);
 
   const dry = ctx.createGain();
-  dry.gain.value = 0.9;
+  dry.gain.value = 0.85;
   leadFilter.connect(dry);
   padFilter.connect(dry);
   leadFilter.connect(convolver);
@@ -170,39 +176,41 @@ function build(): Engine | null {
   return engine;
 }
 
+/** Fieltro: seno como fundamental y triángulo muy suave, sin brillo metálico. */
 function leadNote(engine: Engine, midi: number, when: number, beats: number, velocity: number): void {
   const ctx = engine.ctx;
   const frequency = midiToHz(midi);
-  const duration = Math.max(0.5, beats * BEAT * 1.7);
-  const peak = 0.095 * velocity;
+  const duration = Math.max(1.1, beats * BEAT * 1.5);
+  const peak = 0.07 * velocity;
 
   const body = ctx.createOscillator();
-  body.type = 'triangle';
+  body.type = 'sine';
   body.frequency.value = frequency;
-  const shimmer = ctx.createOscillator();
-  shimmer.type = 'sine';
-  shimmer.frequency.value = frequency * 2.001;
-  const shimmerGain = ctx.createGain();
-  shimmerGain.gain.value = 0.14;
+  const warmth = ctx.createOscillator();
+  warmth.type = 'triangle';
+  warmth.frequency.value = frequency;
+  warmth.detune.value = 5;
+  const warmthGain = ctx.createGain();
+  warmthGain.gain.value = 0.22;
 
   const envelope = ctx.createGain();
   envelope.gain.setValueAtTime(0.0001, when);
-  envelope.gain.exponentialRampToValueAtTime(peak, when + 0.02);
-  envelope.gain.exponentialRampToValueAtTime(peak * 0.38, when + 0.32);
+  envelope.gain.exponentialRampToValueAtTime(peak, when + 0.06);
+  envelope.gain.exponentialRampToValueAtTime(peak * 0.42, when + 0.5);
   envelope.gain.exponentialRampToValueAtTime(0.0001, when + duration);
 
   body.connect(envelope);
-  shimmer.connect(shimmerGain);
-  shimmerGain.connect(envelope);
+  warmth.connect(warmthGain);
+  warmthGain.connect(envelope);
   envelope.connect(engine.leadBus);
 
   body.start(when);
-  shimmer.start(when);
+  warmth.start(when);
   body.stop(when + duration + 0.05);
-  shimmer.stop(when + duration + 0.05);
+  warmth.stop(when + duration + 0.05);
 }
 
-function padNote(engine: Engine, midi: number, when: number, duration: number, peak = 0.013): void {
+function padNote(engine: Engine, midi: number, when: number, duration: number): void {
   const ctx = engine.ctx;
   const frequency = midiToHz(midi);
 
@@ -212,16 +220,16 @@ function padNote(engine: Engine, midi: number, when: number, duration: number, p
   const b = ctx.createOscillator();
   b.type = 'triangle';
   b.frequency.value = frequency;
-  b.detune.value = -5;
+  b.detune.value = -6;
 
   const envelope = ctx.createGain();
   envelope.gain.setValueAtTime(0.0001, when);
-  envelope.gain.linearRampToValueAtTime(peak, when + 0.55);
-  envelope.gain.setValueAtTime(peak, when + duration - 0.9);
+  envelope.gain.linearRampToValueAtTime(0.011, when + 0.8);
+  envelope.gain.setValueAtTime(0.011, when + duration - 1.2);
   envelope.gain.linearRampToValueAtTime(0.0001, when + duration);
 
   const voiceGain = ctx.createGain();
-  voiceGain.gain.value = 0.5;
+  voiceGain.gain.value = 0.45;
   a.connect(voiceGain);
   b.connect(voiceGain);
   voiceGain.connect(envelope);
@@ -241,13 +249,21 @@ function bassNote(engine: Engine, midi: number, when: number, duration: number):
 
   const envelope = ctx.createGain();
   envelope.gain.setValueAtTime(0.0001, when);
-  envelope.gain.linearRampToValueAtTime(0.05, when + 0.12);
+  envelope.gain.linearRampToValueAtTime(0.042, when + 0.18);
   envelope.gain.exponentialRampToValueAtTime(0.0001, when + duration);
 
   osc.connect(envelope);
   envelope.connect(engine.padBus);
   osc.start(when);
   osc.stop(when + duration + 0.05);
+}
+
+/** El canal redefine el color del sonido en el acto (filtros y reverb). */
+function auditionTone(engine: Engine, channel: ChannelId, now = engine.ctx.currentTime): void {
+  const tone = TONES[channel];
+  engine.leadFilter.frequency.setTargetAtTime(tone.leadCutoff, now, GLIDE / 3);
+  engine.padFilter.frequency.setTargetAtTime(tone.padCutoff, now, GLIDE / 3);
+  engine.wet.gain.setTargetAtTime(tone.reverb, now, GLIDE / 3);
 }
 
 function scheduleBar(engine: Engine, when: number): void {
@@ -257,38 +273,26 @@ function scheduleBar(engine: Engine, when: number): void {
   }
 
   const tone = TONES[engine.channel];
-  const offset = tone.offset;
   const bar = engine.barNumber % 4;
   const loop = Math.floor(engine.barNumber / 4);
   const chord = CHORDS[bar];
 
-  // El timbre del canal entra deslizándose: nunca hay salto de textura.
-  engine.leadFilter.frequency.setTargetAtTime(tone.leadCutoff, when, 0.9);
-  engine.padFilter.frequency.setTargetAtTime(tone.padCutoff, when, 0.9);
-  engine.wet.gain.setTargetAtTime(tone.reverb, when, 1.1);
+  auditionTone(engine, engine.channel, when);
 
-  const padNotes = transpose(chord.notes, offset);
-  const lift = Math.min(...padNotes) < 45 ? 12 : 0;
+  const padNotes = transpose(chord.notes, tone.offset + tone.octave);
+  const lift = Math.min(...padNotes) < 40 ? 12 : 0;
   padNotes.forEach((note) => {
-    padNote(engine, note + lift, when, BAR * 0.95, 0.012);
+    padNote(engine, note + lift, when, BAR * 0.96);
   });
-  bassNote(engine, chord.bass + offset, when, BAR * 0.82);
+  bassNote(engine, fitBass(chord.bass + tone.offset + tone.octave), when, BAR * 0.9);
 
   const barStart = bar * 4;
   MELODY.forEach((note) => {
     if (note.beat < barStart || note.beat >= barStart + 4) return;
     const at = when + (note.beat - barStart) * BEAT;
-    const velocity = note.vel * (loop % 2 === 1 ? 0.94 : 1);
-    const midi = note.note + offset;
+    const velocity = note.vel * (loop % 2 === 1 ? 0.92 : 1);
+    const midi = note.note + tone.offset + tone.octave;
     leadNote(engine, midi, at, note.len, velocity);
-    // Mano izquierda: octava baja en las notas largas, para dar cuerpo.
-    if (note.len >= 1.5 && midi - 12 >= 45) {
-      leadNote(engine, midi - 12, at + 0.02, note.len, velocity * 0.42);
-    }
-    // Cada dos vueltas, una octava suave en las notas largas.
-    if (loop % 2 === 1 && note.len >= 1 && midi + 12 <= 88) {
-      leadNote(engine, midi + 12, at + 0.04, note.len, velocity * 0.4);
-    }
   });
 
   engine.barNumber += 1;
@@ -310,7 +314,7 @@ function startScheduler(engine: Engine): void {
   engine.channel = $channel.get();
   engine.timer = setInterval(() => {
     if (engine) scheduler(engine);
-  }, 250);
+  }, 200);
   scheduler(engine);
 }
 
@@ -344,13 +348,12 @@ export async function startAmbient(fade = FADE_IN): Promise<void> {
     }
   }
 
-  const tone = TONES[$channel.get()];
   const now = engine.ctx.currentTime;
   const gain = engine.master.gain;
   gain.cancelScheduledValues(now);
   gain.setValueAtTime(Math.max(gain.value, 0.0001), now);
-  gain.linearRampToValueAtTime(0.42, now + fade);
-  engine.wet.gain.linearRampToValueAtTime(tone.reverb, now + fade);
+  gain.linearRampToValueAtTime(0.36, now + fade);
+  auditionTone(engine, $channel.get(), now);
 
   $audio.set('on');
   startScheduler(engine);
@@ -391,6 +394,9 @@ if (typeof window !== 'undefined' && !scope?.__faAmbientHook) {
   if (scope) scope.__faAmbientHook = true;
   $channel.subscribe((channel) => {
     const engine = getEngine();
-    if (engine?.everStarted) engine.pending = channel as ChannelId;
+    if (!engine?.everStarted) return;
+    // Respuesta inmediata en timbre; la tonalidad nueva entra en el próximo compás.
+    auditionTone(engine, channel as ChannelId);
+    engine.pending = channel as ChannelId;
   });
 }

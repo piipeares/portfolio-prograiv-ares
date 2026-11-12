@@ -208,11 +208,12 @@ Implementa los cuatro estados pedidos (`loading`, `success`, `error`, `empty`), 
 **Archivos:** `src/lib/ambient.ts` (motor), `src/components/react/SoundControl.tsx` (control).  
 **Hidratación:** `client:idle` en la cabecera.
 
-- Piano de fieltro sintetizado: triángulo + armónico senoidal, ataque corto y caída larga, en dos buses (melodía y pad) más un seno de bajo.
-- Armonía en Do mayor con progresión **C–Am–F–G** a **76 BPM**. Cada canal transpone la misma frase: CH 00 en Do, CH 01 en Re, CH 02 en Fa y CH 03 en Sol mayor.
-- **Melodía compuesta de 4 compases** (16 notas, negras y corcheas) que se repite con variaciones: en las vueltas impares baja la intensidad y las notas largas suman una octava suave. No es una nota pedal con notas al azar.
-- Reverb por **convolución** con respuesta impulsiva generada en memoria, compresor de salida y `master` a 0.42 para no fatigar.
-- Al cambiar de canal, el corte de los filtros y la reverb se deslizan con `setTargetAtTime` (≈1 s) y la frase nueva entra en el **siguiente compás**: el audio nunca se corta ni salta.
+- Piano de fieltro sintetizado: seno como fundamental y triángulo apenas audible, ataque de 60 ms y caída larga, en dos buses (melodía y pad) más un seno de bajo.
+- Armonía con séptimas: **Am7 – Fmaj7 – Cmaj7 – G6** a **80 BPM**, sin tríadas brillantes ni notas agudas con armónico metálico.
+- **Melodía compuesta de 4 compases** (8 notas largas, con silencios y saltos amplios), pensada para cantarse. La variación entre vueltas es de intensidad, no de notas al azar.
+- Cada canal transpone la frase a otra tonalidad y otro registro: CH 00 en Do (medio), CH 01 en Fa (aireado), CH 02 en Sol y CH 03 en Re (graves y cálidos). El cambio de tono es claramente audible.
+- Al cambiar de canal, el corte de los filtros y la reverb se deslizan con `setTargetAtTime` (≈1.2 s) y la tonalidad nueva entra en el **siguiente compás**: respuesta inmediata en timbre, transición musical, sin cortes.
+- Reverb por **convolución** con respuesta impulsiva generada en memoria, compresor de salida y `master` a 0.36 para no fatigar.
 - Primer clic en el sintonizador: fade-in de **2 s** desde silencio. El botón `SONIDO ON / OFF` silencia y reanuda; `aria-pressed` y la etiqueta accesible reflejan el estado.
 - Las barras del sintonizador solo se animan con audio activo (`data-audio`).
 - No hay `.mp3`: todo se sintetiza en el navegador. El `AudioContext` se crea con el primer gesto, por la política de autoplay.
