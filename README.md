@@ -1,8 +1,10 @@
-# Felipe Ares — Portfolio 2026
+# Felipe Ares - Portfolio 2026
 
-Portfolio interactivo de **Felipe Ares** (diseño UX/UI, desarrollo multimedial y 3D), construido con **Astro**, islas de **React** y **Three.js**.
+Portfolio interactivo de **Felipe Ares Pacheco** (diseño UX/UI, desarrollo multimedial y 3D), construido con **Astro**, islas de **React** y **Three.js**.
 
-La pieza se organiza como un entorno que se **sintoniza**: el visitante elige un canal y el sitio responde en tres planos a la vez — cambia la geometría y la paleta de la escena 3D, filtra la obra y actualiza el estado de la cabecera. El clima real de Buenos Aires, obtenido de **Open-Meteo**, entra como contexto y modifica el color, la velocidad y el pulso de la escena.
+**Como aclaración fundamental, este portfolio fue un rediseño de mi portfolio original (no terminado) (https://felipearespacheco.vercel.app/) para la materia de Programación IV, de la carrera Lic. en Tecnología Multimedial.**
+
+La pieza se organiza como un entorno que se **sintoniza**: el visitante elige un canal y el sitio responde en tres planos a la vez - cambia la geometría y la paleta de la escena 3D, filtra la obra y actualiza el estado de la cabecera. El clima real de Buenos Aires, obtenido de **Open-Meteo**, entra como contexto y modifica el color, la velocidad y el pulso de la escena.
 
 - Sitio estático de una sola página.
 - Cuatro canales: **Todo el espectro**, **Imagen**, **Interfaz** y **Sistema**.
