@@ -1,0 +1,36 @@
+---
+import ProjectExplorer from './react/ProjectExplorer';
+---
+
+<section id="obra" class="section section--line">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">03 / Obra</p>
+        <h2 class="section-title">Obra <em>seleccionada</em></h2>
+      </div>
+      <p class="work-intro">
+        Seis piezas que cruzan imagen, interfaz y sistema. El sintonizador de la portada filtra este
+        archivo: el mismo gesto que cambia la escena 3D cambia lo que estás leyendo.
+      </p>
+    </div>
+
+    <ProjectExplorer client:visible />
+  </div>
+</section>
+
+<style>
+  .work-intro {
+    max-width: 44ch;
+    margin: 0;
+    font-size: 0.88rem;
+    line-height: 1.6;
+    color: var(--muted);
+  }
+
+  @media (max-width: 720px) {
+    .work-intro {
+      max-width: 100%;
+    }
+  }
+</style>

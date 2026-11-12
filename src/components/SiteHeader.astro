@@ -1,0 +1,308 @@
+---
+import SignalStatus from './react/SignalStatus';
+import SoundControl from './react/SoundControl';
+---
+
+<header class="site-header">
+  <div class="site-header__inner container">
+    <a class="brand" href="#inicio" aria-label="Felipe Ares, ir al inicio">
+      <span class="brand__mark" aria-hidden="true">F<span>/</span>A</span>
+      <span class="brand__text">
+        FELIPE ARES
+        <em>PORTFOLIO 2026</em>
+      </span>
+    </a>
+
+    <nav class="site-nav" aria-label="Navegación principal">
+      <a href="#inicio" data-nav><span class="site-nav__num" aria-hidden="true">01</span> <span>Inicio</span></a>
+      <a href="#manifiesto" data-nav><span class="site-nav__num" aria-hidden="true">02</span> <span>Manifiesto</span></a>
+      <a href="#obra" data-nav><span class="site-nav__num" aria-hidden="true">03</span> <span>Obra</span></a>
+      <a href="#en-vivo" data-nav><span class="site-nav__num" aria-hidden="true">04</span> <span>En vivo</span></a>
+      <a href="#contacto" data-nav><span class="site-nav__num" aria-hidden="true">05</span> <span>Contacto</span></a>
+    </nav>
+
+    <div class="site-header__right">
+      <SoundControl client:idle />
+      <SignalStatus client:idle />
+      <a class="site-header__contact" href="#contacto">Hablemos</a>
+    </div>
+  </div>
+  <div class="scroll-progress" aria-hidden="true"></div>
+</header>
+
+<script>
+  const progress = document.querySelector('.scroll-progress');
+  const navLinks = Array.from(document.querySelectorAll('[data-nav]'));
+  const sections = navLinks
+    .map((link) => document.querySelector(link.getAttribute('href') ?? ''))
+    .filter((section) => section !== null);
+
+  const setActive = (id) => {
+    navLinks.forEach((link) => {
+      if (link.getAttribute('href') === `#${id}`) {
+        link.setAttribute('aria-current', 'location');
+      } else {
+        link.removeAttribute('aria-current');
+      }
+    });
+  };
+
+  if ('IntersectionObserver' in window && sections.length > 0) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (visible) setActive(visible.target.id);
+      },
+      { rootMargin: '-35% 0px -55% 0px', threshold: [0, 0.2, 0.6] },
+    );
+
+    sections.forEach((section) => observer.observe(section));
+  }
+
+  const updateProgress = () => {
+    const doc = document.documentElement;
+    const max = doc.scrollHeight - doc.clientHeight;
+    const value = max > 0 ? Math.min(1, Math.max(0, doc.scrollTop / max)) : 0;
+    progress?.style.setProperty('--progress', String(value));
+  };
+
+  updateProgress();
+  window.addEventListener('scroll', updateProgress, { passive: true });
+  window.addEventListener('resize', updateProgress);
+</script>
+
+<style>
+  .site-header {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 50;
+    border-bottom: 1px solid var(--line-soft);
+    background: linear-gradient(180deg, rgba(5, 5, 5, 0.94), rgba(5, 5, 5, 0.72));
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+
+  .site-header__inner {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    min-height: 74px;
+    min-width: 0;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-right: auto;
+  }
+
+  .brand__mark {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    width: 42px;
+    height: 42px;
+    border: 1px solid var(--line);
+    font-family: var(--display);
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: -0.06em;
+    line-height: 1;
+    white-space: nowrap;
+    color: var(--paper);
+    transition: border-color 0.25s;
+  }
+
+  .brand:hover .brand__mark {
+    border-color: rgba(240, 171, 252, 0.55);
+  }
+
+  .brand__mark span {
+    color: var(--fuchsia);
+  }
+
+  .brand__text {
+    display: flex;
+    flex-direction: column;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.24em;
+    line-height: 1.1;
+    color: var(--paper);
+  }
+
+  .brand__text em {
+    margin-top: 0.22rem;
+    font-style: normal;
+    font-size: 0.46rem;
+    letter-spacing: 0.14em;
+    color: var(--dim);
+  }
+
+  .site-nav {
+    display: flex;
+    align-items: center;
+    gap: 1.35rem;
+    min-width: 0;
+    margin-left: auto;
+  }
+
+  .site-nav a {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0;
+    font-family: var(--mono);
+    font-size: 0.56rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    transition: color 0.2s;
+  }
+
+  .site-nav a span {
+    color: var(--dim);
+    transition: color 0.2s;
+  }
+
+  .site-nav a:hover,
+  .site-nav a[aria-current='location'] {
+    color: var(--paper);
+  }
+
+  .site-nav a:hover span,
+  .site-nav a[aria-current='location'] span {
+    color: var(--fuchsia-soft);
+  }
+
+  .site-nav a[aria-current='location']::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    bottom: -1px;
+    left: 0;
+    height: 1px;
+    background: var(--fuchsia-soft);
+  }
+
+  .site-header__right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-left: 1.5rem;
+    padding-left: 1.5rem;
+    border-left: 1px solid var(--line-soft);
+  }
+
+  .site-header__contact {
+    display: inline-flex;
+    align-items: center;
+    min-height: 38px;
+    padding: 0.45rem 0.8rem;
+    border: 1px solid var(--line);
+    font-family: var(--mono);
+    font-size: 0.54rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--paper);
+    transition: border-color 0.25s, background 0.25s;
+  }
+
+  .site-header__contact:hover {
+    border-color: var(--fuchsia);
+    background: rgba(217, 70, 239, 0.1);
+  }
+
+  .scroll-progress {
+    position: absolute;
+    right: 0;
+    bottom: -1px;
+    left: 0;
+    height: 1px;
+    background: linear-gradient(90deg, var(--fuchsia), var(--violet), var(--cyan));
+    transform: scaleX(var(--progress, 0));
+    transform-origin: left;
+  }
+
+  @media (max-width: 1100px) {
+    .site-nav {
+      gap: 0.9rem;
+    }
+
+    .site-header__right {
+      margin-left: 0.75rem;
+      padding-left: 0.75rem;
+    }
+  }
+
+  @media (max-width: 980px) {
+    .site-header__inner {
+      flex-wrap: wrap;
+      min-height: 64px;
+      padding-top: 0.55rem;
+      padding-bottom: 0.2rem;
+    }
+
+    .site-nav {
+      order: 3;
+      width: 100%;
+      max-width: 100%;
+      margin-left: 0;
+      padding: 0.35rem 0 0.3rem;
+      gap: 1.15rem;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .site-nav::-webkit-scrollbar {
+      display: none;
+    }
+
+    .site-nav a {
+      min-height: 34px;
+      white-space: nowrap;
+      font-size: 0.55rem;
+    }
+
+    .site-header__contact {
+      display: none;
+    }
+
+    .site-header__right {
+      margin-left: auto;
+      padding-left: 0;
+      border-left: 0;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .site-nav {
+      gap: 1.1rem;
+    }
+
+    .site-nav a {
+      font-size: 0.62rem;
+      letter-spacing: 0.1em;
+    }
+
+    .site-nav__num {
+      display: none;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .brand__text em {
+      display: none;
+    }
+
+    .brand__mark {
+      width: 38px;
+      height: 38px;
+    }
+  }
+</style>

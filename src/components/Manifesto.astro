@@ -1,0 +1,497 @@
+---
+import { QUESTIONS, PROCESS, SKILLS, EXPERIENCE, EDUCATION } from '../data/profile';
+---
+
+<section id="manifiesto" class="section section--line">
+  <div class="container manifesto">
+    <div class="manifesto__aside">
+      <p class="eyebrow">02 / Manifiesto</p>
+      <h2 class="section-title">Pienso en <em>sistemas</em>,<br /> no en pantallas.</h2>
+      <p class="manifesto__intro">
+        La imagen, la interfaz y el código no son tres capas separadas: son tres formas de decir lo mismo.
+        Mi trabajo empieza cuando logro que se comporten como una sola.
+      </p>
+      <div class="manifesto__stamp" aria-hidden="true">
+        <span>FELIPE ARES</span>
+        <span>BUENOS AIRES</span>
+        <span>2026</span>
+      </div>
+    </div>
+
+    <div class="manifesto__body">
+      <div class="manifesto__bio">
+        <p class="manifesto__lead">
+          Soy desarrollador multimedial bilingüe con experiencia en análisis y mantenimiento de sistemas,
+          DTP y creación de contenido. Manejo herramientas de diseño con base sólida en UX/UI y desarrollo
+          web.
+        </p>
+        <p>
+          Estoy cursando el cuarto año de la Licenciatura en Tecnología Multimedial en la Universidad
+          Maimónides, donde combino creatividad con precisión técnica. Trabajé en soporte y mantenimiento
+          web, en producción editorial multilingüe y en coordinación de proyectos: tres formas distintas de
+          aprender que el detalle también es parte del diseño.
+        </p>
+        <p>
+          Me interesa la fricción entre lo visual y lo funcional. Diseño para que una experiencia se pueda
+          recorrer, interpretar y recordar; programo para que eso no dependa de una explicación.
+        </p>
+      </div>
+
+      <section class="block" aria-labelledby="questions-title">
+        <h3 class="block__title" id="questions-title">Tres preguntas que orientan mi trabajo</h3>
+        <ol class="questions">
+          {
+            QUESTIONS.map((question) => (
+              <li class="question">
+                <span class="question__n" aria-hidden="true">{question.n}</span>
+                <div>
+                  <h4>{question.title}</h4>
+                  <p>{question.body}</p>
+                </div>
+              </li>
+            ))
+          }
+        </ol>
+      </section>
+
+      <section class="block" aria-labelledby="process-title">
+        <h3 class="block__title" id="process-title">Cómo trabajo</h3>
+        <div class="process">
+          {
+            PROCESS.map((step) => (
+              <article class="process__step">
+                <span class="process__n" aria-hidden="true">{step.n}</span>
+                <h4>{step.title}</h4>
+                <p>{step.body}</p>
+              </article>
+            ))
+          }
+        </div>
+      </section>
+
+      <section class="block" aria-labelledby="skills-title">
+        <h3 class="block__title" id="skills-title">Aptitudes</h3>
+        <div class="skills">
+          {
+            SKILLS.map((group) => (
+              <div class="skills__group">
+                <h4>{group.title}</h4>
+                <ul class="tag-list">
+                  {group.items.map((item) => (
+                    <li class="tag">{item}</li>
+                  ))}
+                </ul>
+              </div>
+            ))
+          }
+        </div>
+      </section>
+
+      <section class="block" aria-labelledby="trajectory-title">
+        <h3 class="block__title" id="trajectory-title">Trayectoria</h3>
+        <div class="trajectory">
+          <div class="timeline">
+            {
+              EXPERIENCE.map((job) => (
+                <article class="job">
+                  <p class="job__period">{job.period}</p>
+                  <h4>{job.role}</h4>
+                  <p class="job__company">{job.company}</p>
+                  <p class="job__detail">{job.detail}</p>
+                </article>
+              ))
+            }
+          </div>
+
+          <aside class="education" aria-label="Formación">
+            <h4 class="education__title">Formación</h4>
+            {
+              EDUCATION.map((item) => (
+                <div class="education__item">
+                  <p class="education__place">{item.eyebrow}</p>
+                  {item.title && <p class="education__title-item">{item.title}</p>}
+                  {item.items && (
+                    <ul class="education__certs">
+                      {item.items.map((cert) => (
+                        <li>{cert}</li>
+                      ))}
+                    </ul>
+                  )}
+                  {item.detail && <p class="education__detail">{item.detail}</p>}
+                </div>
+              ))
+            }
+            <p class="education__note">
+              Disponible para proyectos y colaboraciones en Buenos Aires y en cualquier parte del mundo (Remoto).
+            </p>
+          </aside>
+        </div>
+      </section>
+    </div>
+  </div>
+</section>
+
+<style>
+  .manifesto {
+    display: grid;
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.35fr);
+    gap: clamp(3rem, 7vw, 8rem);
+    align-items: start;
+  }
+
+  .manifesto__aside {
+    position: sticky;
+    top: 128px;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .manifesto__aside .section-title {
+    font-size: clamp(2rem, 3.1vw, 3.1rem);
+    max-width: 100%;
+    overflow-wrap: normal;
+    hyphens: none;
+  }
+
+  .manifesto__intro {
+    max-width: 36ch;
+    margin: 1.5rem 0 0;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--muted);
+  }
+
+  .manifesto__stamp {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    margin-top: 2rem;
+    padding-top: 0.85rem;
+    border-top: 1px solid var(--line);
+    font-family: var(--mono);
+    font-size: 0.5rem;
+    letter-spacing: 0.18em;
+    color: var(--dim);
+  }
+
+  .manifesto__body {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(2.5rem, 5vw, 4rem);
+  }
+
+  .manifesto__bio {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .manifesto__bio p {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--muted);
+  }
+
+  .manifesto__lead {
+    color: #e4e4e7 !important;
+    font-size: clamp(1.15rem, 1.9vw, 1.45rem) !important;
+    line-height: 1.5 !important;
+    letter-spacing: -0.01em;
+  }
+
+  .block__title {
+    margin: 0 0 1.25rem;
+    padding-bottom: 0.7rem;
+    border-bottom: 1px solid var(--line);
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .questions {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .question {
+    display: grid;
+    grid-template-columns: 42px 1fr;
+    gap: 1rem;
+    padding: 1.15rem 0;
+    border-bottom: 1px solid var(--line-soft);
+  }
+
+  .question:first-child {
+    border-top: 1px solid var(--line-soft);
+  }
+
+  .question__n {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.14em;
+    color: var(--fuchsia-soft);
+  }
+
+  .question h4 {
+    margin: 0 0 0.35rem;
+    font-family: var(--display);
+    font-size: clamp(1.05rem, 1.8vw, 1.3rem);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+  }
+
+  .question p {
+    max-width: 60ch;
+    margin: 0;
+    font-size: 0.86rem;
+    line-height: 1.6;
+    color: var(--muted);
+  }
+
+  .process {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1px;
+    border: 1px solid var(--line);
+    background: var(--line-soft);
+  }
+
+  .process__step {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1.1rem;
+    background: rgba(8, 8, 10, 0.82);
+  }
+
+  .process__n {
+    font-family: var(--mono);
+    font-size: 0.56rem;
+    letter-spacing: 0.18em;
+    color: var(--fuchsia-soft);
+  }
+
+  .process__step h4 {
+    margin: 0;
+    font-family: var(--display);
+    font-size: 1.05rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+  }
+
+  .process__step p {
+    margin: 0;
+    font-size: 0.78rem;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+
+  .skills {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+
+  .skills__group h4 {
+    margin: 0 0 0.65rem;
+    font-family: var(--mono);
+    font-size: 0.55rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--fuchsia-soft);
+  }
+
+  .trajectory {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(200px, 0.8fr);
+    gap: clamp(1.5rem, 4vw, 3rem);
+  }
+
+  .timeline {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .job {
+    padding: 1rem 0 1rem 1.1rem;
+    border-left: 1px solid var(--line);
+  }
+
+  .job:first-child {
+    padding-top: 0;
+  }
+
+  .job__period {
+    margin: 0 0 0.35rem;
+    font-family: var(--mono);
+    font-size: 0.5rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+
+  .job h4 {
+    margin: 0;
+    font-family: var(--display);
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+
+  .job__role {
+    margin: 0.2rem 0 0.4rem;
+    font-family: var(--mono);
+    font-size: 0.56rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--fuchsia-soft);
+  }
+
+  .job__company {
+    margin: 0.2rem 0 0.4rem;
+    font-family: var(--mono);
+    font-size: 0.56rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--fuchsia-soft);
+  }
+
+  .education__certs {
+    display: grid;
+    gap: 0.3rem;
+    margin: 0.45rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .education__certs li {
+    font-family: var(--display);
+    font-size: 0.86rem;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--paper);
+  }
+
+  .job__detail {
+    max-width: 60ch;
+    margin: 0;
+    font-size: 0.8rem;
+    line-height: 1.55;
+    color: var(--muted);
+  }
+
+  .education {
+    align-self: start;
+    padding: 1rem;
+    border: 1px solid var(--line);
+    background: rgba(8, 8, 10, 0.66);
+  }
+
+  .education__title {
+    margin: 0 0 0.8rem;
+    font-family: var(--mono);
+    font-size: 0.55rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .education__item {
+    padding: 0.7rem 0;
+    border-top: 1px solid var(--line-soft);
+  }
+
+  .education__place {
+    margin: 0 0 0.25rem;
+    font-family: var(--mono);
+    font-size: 0.5rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--fuchsia-soft);
+  }
+
+  .education__title-item {
+    margin: 0;
+    font-family: var(--display);
+    font-size: 0.92rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .education__detail {
+    margin: 0.25rem 0 0;
+    font-size: 0.72rem;
+    line-height: 1.45;
+    color: var(--dim);
+  }
+
+  .education__note {
+    margin: 0.8rem 0 0;
+    padding-top: 0.8rem;
+    border-top: 1px solid var(--line-soft);
+    font-size: 0.72rem;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+
+  @media (max-width: 520px) {
+    .manifesto__aside .section-title {
+      font-size: clamp(1.35rem, 6.8vw, 2.4rem);
+    }
+  }
+
+  @media (max-width: 980px) {
+    .manifesto {
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+    }
+
+    .manifesto__aside {
+      position: static;
+    }
+
+    .manifesto__aside .section-title {
+      max-width: 18ch;
+    }
+
+    .manifesto__intro {
+      max-width: 52ch;
+    }
+
+    .manifesto__stamp {
+      display: none;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .process {
+      grid-template-columns: 1fr;
+    }
+
+    .skills {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    .trajectory {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .question {
+      grid-template-columns: 1fr;
+      gap: 0.4rem;
+    }
+  }
+</style>

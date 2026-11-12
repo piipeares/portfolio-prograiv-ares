@@ -1,0 +1,244 @@
+---
+import { SITE } from '../data/profile';
+---
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer__top">
+      <div class="footer__brand">
+        <span class="footer__mark" aria-hidden="true">F<span>/</span>A</span>
+        <div>
+          <p class="footer__name">FELIPE ARES</p>
+          <p class="footer__tagline">
+            Portfolio de Felipe Ares. Diseño, imagen y código como un mismo sistema.
+          </p>
+        </div>
+      </div>
+
+      <nav class="footer__nav" aria-label="Navegación del pie">
+        <a href="#inicio">01 Inicio</a>
+        <a href="#manifiesto">02 Manifiesto</a>
+        <a href="#obra">03 Obra</a>
+        <a href="#en-vivo">04 En vivo</a>
+        <a href="#contacto">05 Contacto</a>
+      </nav>
+
+      <div class="footer__contact">
+        <p class="footer__label">Contacto</p>
+        <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
+        <a href={SITE.whatsapp} target="_blank" rel="noopener noreferrer">WhatsApp</a>
+        <a href={SITE.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      </div>
+    </div>
+
+    <div class="footer__credits">
+      <div>
+        <p class="footer__label">Tecnología</p>
+        <p>Astro · React · Three.js · Nanostores. Escena 3D generada por código, sin modelos externos.</p>
+      </div>
+      <div>
+        <p class="footer__label">Tipografías</p>
+        <p>Syne, Space Grotesk y JetBrains Mono, distribuidas por Google Fonts bajo SIL Open Font License.</p>
+      </div>
+      <div>
+        <p class="footer__label">Datos y recursos</p>
+        <p>
+          Clima: Open-Meteo (CC BY 4.0). Portadas generadas con CSS; no se usan imágenes de stock ni
+          modelos 3D de terceros.
+        </p>
+      </div>
+    </div>
+
+    <div class="footer__bottom">
+      <p>© 2026 Felipe Ares · Buenos Aires, Argentina</p>
+      <p class="footer__docs">Documentación del proceso: README.md y PROCESO.md en el repositorio.</p>
+      <a class="footer__top-link" href="#inicio">Volver arriba <span aria-hidden="true">↑</span></a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    position: relative;
+    z-index: 30;
+    border-top: 1px solid var(--line);
+    background:
+      linear-gradient(180deg, rgba(5, 5, 5, 0.72), #050505 22%),
+      #050505;
+    padding-block: clamp(2.5rem, 6vw, 4rem) 1.5rem;
+  }
+
+  .footer__top {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.9fr) minmax(0, 0.8fr);
+    gap: clamp(1.5rem, 4vw, 3rem);
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--line-soft);
+  }
+
+  .footer__brand {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .footer__mark {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    border: 1px solid var(--line);
+    font-family: var(--display);
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: -0.06em;
+  }
+
+  .footer__mark span {
+    color: var(--fuchsia);
+  }
+
+  .footer__name {
+    margin: 0;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.26em;
+    color: var(--paper);
+  }
+
+  .footer__tagline {
+    max-width: 34ch;
+    margin: 0.4rem 0 0;
+    font-size: 0.78rem;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+
+  .footer__label {
+    margin: 0 0 0.55rem;
+    font-family: var(--mono);
+    font-size: 0.5rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+
+  .footer__nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .footer__nav a {
+    width: fit-content;
+    padding: 0.2rem 0;
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    transition: color 0.2s;
+  }
+
+  .footer__nav a:hover {
+    color: var(--paper);
+  }
+
+  .footer__contact {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .footer__contact a {
+    padding: 0.2rem 0;
+    font-size: 0.78rem;
+    color: var(--muted);
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-underline-offset: 4px;
+    transition: color 0.2s, text-decoration-color 0.2s;
+  }
+
+  .footer__contact a:hover {
+    color: var(--paper);
+    text-decoration-color: var(--fuchsia);
+  }
+
+  .footer__credits {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--line-soft);
+  }
+
+  .footer__credits p:last-child {
+    margin: 0;
+    font-size: 0.7rem;
+    line-height: 1.55;
+    color: var(--dim);
+  }
+
+  .footer__bottom {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem 1.5rem;
+    padding-top: 1.5rem;
+    font-family: var(--mono);
+    font-size: 0.5rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+
+  .footer__bottom p {
+    margin: 0;
+  }
+
+  .footer__docs {
+    color: rgba(161, 161, 170, 0.65);
+  }
+
+  .footer__top-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 36px;
+    color: var(--muted);
+    transition: color 0.2s;
+  }
+
+  .footer__top-link:hover {
+    color: var(--paper);
+  }
+
+  .footer__top-link span {
+    color: var(--fuchsia-soft);
+  }
+
+  @media (max-width: 900px) {
+    .footer__top {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .footer__credits {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .footer__top {
+      grid-template-columns: 1fr;
+    }
+
+    .footer__bottom {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>

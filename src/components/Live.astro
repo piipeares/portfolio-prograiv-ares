@@ -1,0 +1,184 @@
+---
+import WeatherSignal from './react/WeatherSignal';
+---
+
+<section id="en-vivo" class="section section--line">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">04 / En vivo</p>
+        <h2 class="section-title">El clima <em>también diseña</em>.</h2>
+      </div>
+      <p class="live-intro">
+        El clima actual de Buenos Aires modifica en vivo los colores y la física del entorno 3D:
+        temperatura, humedad y viento definen la paleta y la velocidad de la escena.
+      </p>
+    </div>
+
+    <div class="live">
+      <WeatherSignal client:idle />
+
+      <aside class="live__notes panel" aria-labelledby="protocol-title">
+        <p class="live__kicker">PROTOCOLO DE DATOS</p>
+        <h3 id="protocol-title">Clima en tiempo real — Buenos Aires</h3>
+
+        <ul class="protocol">
+          <li>
+            <span class="protocol__label">Fuente</span>
+            <p>
+              API pública de Open-Meteo, sin API key: temperatura, sensación térmica, viento, humedad,
+              precipitación y código WMO para <span class="mono">-34.6037, -58.3816</span>.
+            </p>
+          </li>
+          <li>
+            <span class="protocol__label">Límites</span>
+            <p>
+              La respuesta se guarda 10 minutos en <span class="mono">sessionStorage</span>. El botón
+              “Actualizar” fuerza una lectura nueva y respeta el tiempo de espera.
+            </p>
+          </li>
+          <li>
+            <span class="protocol__label">Timeout</span>
+            <p>
+              Un <span class="mono">AbortController</span> corta la petición a los 8 segundos. Nunca deja la
+              interfaz esperando indefinidamente.
+            </p>
+          </li>
+          <li>
+            <span class="protocol__label">Error</span>
+            <p>
+              Si la red falla, se conserva la última lectura guardada con aviso de caché. Si no hay ninguna,
+              aparece <span class="mono">SIGNAL LOST</span> con reintento manual.
+            </p>
+          </li>
+          <li>
+            <span class="protocol__label">Vacío</span>
+            <p>
+              Si la API responde sin bloque <span class="mono">current</span>, se muestra el estado
+              <span class="mono">NO DATA</span> en lugar de inventar valores.
+            </p>
+          </li>
+          <li>
+            <span class="protocol__label">Efecto</span>
+            <p>
+              Cada condición (despejado, nublado, niebla, lluvia, nieve, tormenta) define una paleta y una
+              velocidad distinta para el toro y las partículas.
+            </p>
+          </li>
+        </ul>
+
+        <p class="live__legend" aria-hidden="true">
+          <span>LOADING</span><span>SUCCESS</span><span>ERROR</span><span>EMPTY</span>
+        </p>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<style>
+  .live-intro {
+    max-width: 46ch;
+    margin: 0;
+    font-size: 0.88rem;
+    line-height: 1.6;
+    color: var(--muted);
+  }
+
+  .live {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(300px, 0.75fr);
+    gap: clamp(1.25rem, 3vw, 2rem);
+    align-items: stretch;
+  }
+
+  .live__notes {
+    display: flex;
+    flex-direction: column;
+    padding: clamp(1.25rem, 3vw, 1.75rem);
+  }
+
+  .live__kicker {
+    margin: 0 0 0.5rem;
+    font-family: var(--mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--cyan);
+  }
+
+  .live__notes h3 {
+    margin: 0 0 1rem;
+    font-family: var(--display);
+    font-size: clamp(1.35rem, 2.4vw, 1.8rem);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    text-transform: uppercase;
+  }
+
+  .protocol {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .protocol li {
+    padding: 0.7rem 0;
+    border-top: 1px solid var(--line-soft);
+  }
+
+  .protocol li:last-child {
+    border-bottom: 1px solid var(--line-soft);
+  }
+
+  .protocol__label {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-family: var(--mono);
+    font-size: 0.5rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--fuchsia-soft);
+  }
+
+  .protocol p {
+    margin: 0;
+    font-size: 0.74rem;
+    line-height: 1.55;
+    color: var(--muted);
+  }
+
+  .protocol .mono {
+    font-size: 0.68rem;
+    color: #d4d4d8;
+  }
+
+  .live__legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: auto 0 0;
+    padding-top: 1rem;
+    font-family: var(--mono);
+    font-size: 0.46rem;
+    letter-spacing: 0.12em;
+    color: var(--dim);
+  }
+
+  .live__legend span {
+    padding: 0.2rem 0.35rem;
+    border: 1px solid var(--line-soft);
+  }
+
+  @media (max-width: 900px) {
+    .live {
+      grid-template-columns: 1fr;
+    }
+
+    .live-intro {
+      max-width: 100%;
+    }
+  }
+</style>

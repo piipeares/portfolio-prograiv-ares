@@ -1,0 +1,31 @@
+---
+import Layout from '../layouts/Layout.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import Hero from '../components/Hero.astro';
+import Manifesto from '../components/Manifesto.astro';
+import Work from '../components/Work.astro';
+import Live from '../components/Live.astro';
+import Contact from '../components/Contact.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+---
+
+<Layout>
+  <noscript>
+    <p class="noscript">
+      La escena 3D, el sintonizador de canales y el clima en vivo necesitan JavaScript. Todo el contenido
+      principal del portfolio sigue disponible sin él.
+    </p>
+  </noscript>
+
+  <SiteHeader />
+
+  <main id="contenido">
+    <Hero />
+    <Manifesto />
+    <Work />
+    <Live />
+    <Contact />
+  </main>
+
+  <SiteFooter />
+</Layout>
