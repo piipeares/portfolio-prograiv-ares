@@ -447,7 +447,7 @@ El build emite un aviso de Vite porque el chunk de la escena supera los 500 KB. 
 7. **Una sola página y un solo idioma.** No hay i18n ni rutas adicionales.
 8. **Tipografías externas.** Google Fonts es un CDN de terceros; si falla, el sitio usa fallbacks del sistema.
 9. **Metadatos sociales incompletos.** Hay OG/Twitter básicos, pero no imagen Open Graph dedicada.
-10. **Dominio de ejemplo.** `astro.config.mjs` usa `https://senal-felipe.vercel.app` como `site`; debe reemplazarse por el dominio real antes de publicar.
+10. **Dominio.** El sitio se publica en `https://portfolio-prograiv-ares.vercel.app`; `astro.config.mjs` usa ese dominio para canonical y metadatos sociales.
 11. **Audio y gesto del usuario.** Por la política de autoplay, el audio solo puede iniciarse con un clic o una tecla. No hay pista pregrabada: si el navegador no soporta Web Audio API, el control queda deshabilitado.
 
 ---
